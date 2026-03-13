@@ -13,10 +13,24 @@ class ProductViewModel extends ChangeNotifier {
   ProductState _state = ProductState.initial;
   List<Product> _products = [];
   String _errorMessage = '';
+  bool _showOnlyFavorites = false;
 
   ProductState get state => _state;
-  List<Product> get products => _products;
+  List<Product> get products =>
+      _showOnlyFavorites ? _products.where((p) => p.favorite).toList() : List.unmodifiable(_products);
   String get errorMessage => _errorMessage;
+  int get favoriteCount => _products.where((p) => p.favorite).length;
+  bool get showOnlyFavorites => _showOnlyFavorites;
+
+  void toggleFavorite(Product product) {
+    product.favorite = !product.favorite;
+    notifyListeners();
+  }
+
+  void toggleFilter() {
+    _showOnlyFavorites = !_showOnlyFavorites;
+    notifyListeners();
+  }
 
   Future<void> loadProducts() async {
     _state = ProductState.loading;
