@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'core/network/http_client.dart';
 import 'features/products/data/datasources/product_remote_datasource.dart';
+import 'features/products/data/datasources/product_local_datasource.dart';
 import 'features/products/data/repositories/product_repository_impl.dart';
 import 'features/products/presentation/pages/product_list_page.dart';
 import 'features/products/presentation/viewmodels/product_viewmodel.dart';
@@ -17,13 +18,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final httpClient = AppHttpClient();
-    final datasource = ProductRemoteDatasource(httpClient: httpClient);
-    final repository = ProductRepositoryImpl(remoteDatasource: datasource);
+    final remoteDatasource = ProductRemoteDatasource(httpClient: httpClient);
+    final localDatasource = ProductLocalDatasource();
+    final repository = ProductRepositoryImpl(
+      remoteDatasource: remoteDatasource,
+      localDatasource: localDatasource,
+    );
 
     return ChangeNotifierProvider(
       create: (_) => ProductViewModel(repository: repository),
       child: MaterialApp(
-        title: 'Mobile Arquitetura 01',
+        title: 'Mobile Arquitetura 02',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),

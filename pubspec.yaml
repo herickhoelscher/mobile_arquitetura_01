@@ -1,10 +1,10 @@
-name: mobile_arquitetura_01
-description: "A new Flutter project."
+name: mobile_arquitetura_02
+description: "Evolução da Atividade 1 com cache, estados e tratamento de erros."
 publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.2
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -12,11 +12,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.2.1
   provider: ^6.1.2
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true

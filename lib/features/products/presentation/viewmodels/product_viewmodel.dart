@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
+import '../../../../core/errors/app_exception.dart';
 
 enum ProductState { initial, loading, success, error }
 
@@ -24,8 +25,17 @@ class ProductViewModel extends ChangeNotifier {
     try {
       _products = await repository.getProducts();
       _state = ProductState.success;
-    } catch (e) {
-      _errorMessage = 'Não foi possível carregar os produtos.';
+    } on CacheException {
+      _errorMessage = 'Sem conexão e nenhum dado em cache disponível.';
+      _state = ProductState.error;
+    } on NetworkException {
+      _errorMessage = 'Sem conexão com a internet. Tente novamente.';
+      _state = ProductState.error;
+    } on AppException catch (e) {
+      _errorMessage = e.message;
+      _state = ProductState.error;
+    } catch (_) {
+      _errorMessage = 'Erro inesperado. Tente novamente.';
       _state = ProductState.error;
     }
 
