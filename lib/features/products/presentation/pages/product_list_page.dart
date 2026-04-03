@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/product_viewmodel.dart';
 import '../widgets/product_card.dart';
+import 'product_detail_page.dart';
+import 'product_form_page.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -80,18 +82,40 @@ class _ProductListPageState extends State<ProductListPage> {
             ],
           ),
           body: _buildBody(vm, showOnlyFavorites),
-          floatingActionButton: (vm.state == ProductState.success && favoriteCount > 0)
-              ? FloatingActionButton.extended(
-                  onPressed: () {
-                    if (!showOnlyFavorites) vm.toggleFilter();
-                  },
-                  backgroundColor: Colors.amber,
-                  foregroundColor: Colors.black,
-                  icon: const Icon(Icons.star),
-                  label: Text(
-                    '$favoriteCount ${favoriteCount == 1 ? 'favorito' : 'favoritos'}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
+          floatingActionButton: vm.state == ProductState.success
+              ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (favoriteCount > 0) ...[
+                      FloatingActionButton.extended(
+                        heroTag: 'fab_favorites',
+                        onPressed: () {
+                          if (!showOnlyFavorites) vm.toggleFilter();
+                        },
+                        backgroundColor: Colors.amber,
+                        foregroundColor: Colors.black,
+                        icon: const Icon(Icons.star),
+                        label: Text(
+                          '$favoriteCount ${favoriteCount == 1 ? 'favorito' : 'favoritos'}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    FloatingActionButton(
+                      heroTag: 'fab_add',
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProductFormPage(),
+                        ),
+                      ),
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      tooltip: 'Adicionar produto',
+                      child: const Icon(Icons.add),
+                    ),
+                  ],
                 )
               : null,
         );
@@ -171,7 +195,16 @@ class _ProductListPageState extends State<ProductListPage> {
             Expanded(
               child: ListView.builder(
                 itemCount: products.length,
-                itemBuilder: (_, index) => ProductCard(product: products[index]),
+                itemBuilder: (_, index) => ProductCard(
+                  product: products[index],
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ProductDetailPage(productId: products[index].id),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

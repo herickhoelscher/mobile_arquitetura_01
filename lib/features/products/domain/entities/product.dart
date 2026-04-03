@@ -4,6 +4,7 @@ class Product {
   final double price;
   final String image;
   final String category;
+  final String description;
   bool favorite; // estado local, não vem da API
 
   Product({
@@ -12,6 +13,7 @@ class Product {
     required this.price,
     required this.image,
     required this.category,
+    required this.description,
     this.favorite = false,
   });
 }

@@ -5,7 +5,7 @@ import 'core/network/http_client.dart';
 import 'features/products/data/datasources/product_remote_datasource.dart';
 import 'features/products/data/datasources/product_local_datasource.dart';
 import 'features/products/data/repositories/product_repository_impl.dart';
-import 'features/products/presentation/pages/product_list_page.dart';
+import 'features/products/presentation/pages/home_page.dart';
 import 'features/products/presentation/viewmodels/product_viewmodel.dart';
 
 void main() {
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const ProductListPage(),
+        home: const HomePage(),
       ),
     );
   }

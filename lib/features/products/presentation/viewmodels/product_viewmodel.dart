@@ -14,13 +14,16 @@ class ProductViewModel extends ChangeNotifier {
   List<Product> _products = [];
   String _errorMessage = '';
   bool _showOnlyFavorites = false;
+  bool _isSubmitting = false;
 
   ProductState get state => _state;
   List<Product> get products =>
       _showOnlyFavorites ? _products.where((p) => p.favorite).toList() : List.unmodifiable(_products);
+  List<Product> get allProducts => List.unmodifiable(_products);
   String get errorMessage => _errorMessage;
   int get favoriteCount => _products.where((p) => p.favorite).length;
   bool get showOnlyFavorites => _showOnlyFavorites;
+  bool get isSubmitting => _isSubmitting;
 
   void toggleFavorite(Product product) {
     product.favorite = !product.favorite;
@@ -54,5 +57,68 @@ class ProductViewModel extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  Future<bool> addProduct({
+    required String title,
+    required double price,
+    required String category,
+    required String description,
+    required String image,
+  }) async {
+    _isSubmitting = true;
+    notifyListeners();
+    try {
+      final product = Product(
+        id: 0,
+        title: title,
+        price: price,
+        category: category,
+        description: description,
+        image: image,
+      );
+      final created = await repository.addProduct(product);
+      _products.add(created);
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } catch (_) {
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateProduct(Product product) async {
+    _isSubmitting = true;
+    notifyListeners();
+    try {
+      final updated = await repository.updateProduct(product);
+      final index = _products.indexWhere((p) => p.id == product.id);
+      if (index != -1) _products[index] = updated;
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } catch (_) {
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteProduct(int id) async {
+    _isSubmitting = true;
+    notifyListeners();
+    try {
+      await repository.deleteProduct(id);
+      _products.removeWhere((p) => p.id == id);
+      _isSubmitting = false;
+      notifyListeners();
+      return true;
+    } catch (_) {
+      _isSubmitting = false;
+      notifyListeners();
+      return false;
+    }
   }
 }
