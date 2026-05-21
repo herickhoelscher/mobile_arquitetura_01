@@ -17,3 +17,7 @@ class ServerException extends AppException {
 class CacheException extends AppException {
   CacheException() : super('Nenhum dado em cache disponível.');
 }
+
+class AuthException extends AppException {
+  AuthException([String message = 'Credenciais inválidas.']) : super(message);
+}

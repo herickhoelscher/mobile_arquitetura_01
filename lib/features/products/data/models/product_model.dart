@@ -11,11 +11,13 @@ class ProductModel extends Product {
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
+    // DummyJSON usa 'thumbnail'; suporte legado a 'image' para cache antigo
+    final image = (json['thumbnail'] ?? json['image']) as String? ?? '';
     return ProductModel(
       id: json['id'] as int,
       title: json['title'] as String,
       price: (json['price'] as num).toDouble(),
-      image: json['image'] as String,
+      image: image,
       category: json['category'] as String,
       description: json['description'] as String? ?? '',
     );
@@ -26,7 +28,7 @@ class ProductModel extends Product {
       'id': id,
       'title': title,
       'price': price,
-      'image': image,
+      'thumbnail': image,
       'category': category,
       'description': description,
     };

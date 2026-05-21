@@ -46,25 +46,10 @@ class ProductRepositoryImpl implements ProductRepository {
       description: product.description,
     );
 
-    // FakeStore API sempre retorna id=21; geramos um ID local válido
-    await remoteDatasource.createProduct(model);
-
-    final newId = _localProducts.isEmpty
-        ? 1
-        : _localProducts.map((p) => p.id).reduce((a, b) => a > b ? a : b) + 1;
-
-    final newProduct = ProductModel(
-      id: newId,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      category: product.category,
-      description: product.description,
-    );
-
-    _localProducts.add(newProduct);
+    final created = await remoteDatasource.createProduct(model);
+    _localProducts.add(created);
     await localDatasource.saveProducts(_localProducts);
-    return newProduct;
+    return created;
   }
 
   @override

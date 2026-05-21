@@ -4,6 +4,9 @@ import '../viewmodels/product_viewmodel.dart';
 import '../widgets/product_card.dart';
 import 'product_detail_page.dart';
 import 'product_form_page.dart';
+import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
+import '../../../auth/presentation/pages/login_page.dart';
+import '../../../auth/presentation/pages/profile_page.dart';
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -16,33 +19,52 @@ class _ProductListPageState extends State<ProductListPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        context.read<ProductViewModel>().loadProducts());
+    Future.microtask(() {
+      if (mounted) context.read<ProductViewModel>().loadProducts();
+    });
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    await context.read<AuthViewModel>().logout();
+    if (!context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (_) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ProductViewModel>(
-      builder: (context, vm, _) {
+    return Consumer2<ProductViewModel, AuthViewModel>(
+      builder: (context, vm, authVm, _) {
         final favoriteCount = vm.favoriteCount;
         final showOnlyFavorites = vm.showOnlyFavorites;
+        final user = authVm.currentUser;
 
         return Scaffold(
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Produtos'),
-                if (favoriteCount > 0 && vm.state == ProductState.success)
+                if (user != null)
                   Text(
-                    '$favoriteCount ${favoriteCount == 1 ? 'favorito' : 'favoritos'}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+                    'Olá, ${user.firstName}',
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w400),
                   ),
               ],
             ),
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
             actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                tooltip: 'Atualizar lista',
+                onPressed: vm.loadProducts,
+              ),
               if (vm.state == ProductState.success)
                 Stack(
                   alignment: Alignment.center,
@@ -52,7 +74,9 @@ class _ProductListPageState extends State<ProductListPage> {
                         showOnlyFavorites ? Icons.star : Icons.star_border,
                         color: Colors.white,
                       ),
-                      tooltip: showOnlyFavorites ? 'Mostrar todos' : 'Mostrar favoritos',
+                      tooltip: showOnlyFavorites
+                          ? 'Mostrar todos'
+                          : 'Mostrar favoritos',
                       onPressed: vm.toggleFilter,
                     ),
                     if (favoriteCount > 0)
@@ -65,7 +89,8 @@ class _ProductListPageState extends State<ProductListPage> {
                             color: Colors.amber,
                             shape: BoxShape.circle,
                           ),
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          constraints:
+                              const BoxConstraints(minWidth: 16, minHeight: 16),
                           child: Text(
                             '$favoriteCount',
                             style: const TextStyle(
@@ -79,6 +104,32 @@ class _ProductListPageState extends State<ProductListPage> {
                       ),
                   ],
                 ),
+              if (user != null)
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfilePage()),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: CircleAvatar(
+                      radius: 16,
+                      backgroundColor: Colors.deepPurple.shade200,
+                      backgroundImage: user.image.isNotEmpty
+                          ? NetworkImage(user.image)
+                          : null,
+                      child: user.image.isEmpty
+                          ? const Icon(Icons.person,
+                              size: 18, color: Colors.white)
+                          : null,
+                    ),
+                  ),
+                ),
+              IconButton(
+                icon: const Icon(Icons.logout),
+                tooltip: 'Sair',
+                onPressed: () => _logout(context),
+              ),
             ],
           ),
           body: _buildBody(vm, showOnlyFavorites),
@@ -107,8 +158,7 @@ class _ProductListPageState extends State<ProductListPage> {
                       onPressed: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const ProductFormPage(),
-                        ),
+                            builder: (_) => const ProductFormPage()),
                       ),
                       backgroundColor: Colors.deepPurple,
                       foregroundColor: Colors.white,
